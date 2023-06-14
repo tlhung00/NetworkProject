@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 namespace network_project
 {
+    #region SocketData
     //------------------------SocketData------------------------
     [Serializable]
     public class SocketData
@@ -48,14 +49,18 @@ namespace network_project
             this.Message = message;
         }
     }
-
+    //Các loại command mà client và server sẽ gửi
     public enum SocketCommand
     {
         SEND_POINT,
         NOTIFY,
         NEW_GAME,
         END_GAME,
+        CHAT,
+        SURRENDER,
     }
+    #endregion
+    #region Player
     //------------------------Player------------------------
     public class Player
     {
@@ -81,7 +86,8 @@ namespace network_project
             this.Mark = mark;
         }
     }
-    
+    #endregion
+    #region Board
     //------------------------Board------------------------
     public class BoardProp
     {
@@ -177,11 +183,11 @@ namespace network_project
 
             this.Player = new List<Player>()
             {
-                new Player("Player1", Image.FromFile(Application.StartupPath + "\\Resources\\P1.png")),
-                new Player("Player2", Image.FromFile(Application.StartupPath + "\\Resources\\P2.png"))
+                new Player("Player 1", Image.FromFile(Application.StartupPath + "\\Resources\\P1.png")),
+                new Player("Player 2", Image.FromFile(Application.StartupPath + "\\Resources\\P2.png"))
             };
         }
-
+        //Tạo bàn cờ mới
         public void CreateBoard()
         {
             Board.Enabled = true; 
@@ -219,7 +225,7 @@ namespace network_project
                 oldButton.Height = 0;
             }
         }
-
+        //Đánh quân cờ
         void btn_Click(object sender, EventArgs e)
         {
             Button btn = sender as Button;
@@ -260,15 +266,15 @@ namespace network_project
                 EndGame();
             }
         }
-
         public void EndGame()
         {
-            if (endedGame != null)
+            if (endedGame!= null)
                 endedGame(this, new EventArgs());
         }
-
+        #endregion
+    #region Logic
         //------------------------Logic------------------------
-
+        //Kiểm tra nếu có người thắng cuộc
         private bool isEndGame(Button btn)
         {
             return EndHorizontal(btn) || EndVertical(btn) || EndPrimary(btn) || EndSub(btn);
@@ -279,10 +285,9 @@ namespace network_project
             int vertical = Convert.ToInt32(btn.Tag);
             int horizontal = Matrix[vertical].IndexOf(btn);
             Point point = new Point(horizontal, vertical);
-
             return point;
         }
-
+        //Kiểm tra nếu có 5 quân cờ hàng ngang
         private bool EndHorizontal(Button btn)
         {
             Point point = GetPoint(btn);
@@ -310,6 +315,7 @@ namespace network_project
             }
             return countLeft + countRight == 5;
         }
+        //Kiểm tra nếu có 5 quân cờ hàng dọc
         private bool EndVertical(Button btn)
         {
             Point point = GetPoint(btn);
@@ -337,6 +343,7 @@ namespace network_project
             }
             return countTop + countBottom == 5;
         }
+        //Kiểm tra nếu có 5 quân cờ nằm theo đường chéo (/)
         private bool EndPrimary(Button btn)
         {
             Point point = GetPoint(btn);
@@ -370,6 +377,7 @@ namespace network_project
             }
             return countTop + countBottom == 5;
         }
+        //Kiểm tra nếu có 5 quân cờ nằm theo đường chéo (\)
         private bool EndSub(Button btn)
         {
             Point point = GetPoint(btn);
@@ -403,12 +411,12 @@ namespace network_project
             }
             return countTop + countBottom == 5;
         }
-
+        //Thay đổi ảnh của ô được chọn bằng quân cờ của người chơi
         public void Mark(Button btn)
         {
             btn.BackgroundImage = Player[CurrentPlayer].Mark;
         }
-
+        //Đổi người chơi
         public void ChangePlayer()
         {
             PlayerName.Text = Player[CurrentPlayer].Name;
@@ -429,5 +437,6 @@ namespace network_project
                 this.ClickedPoint = point;
             }
         }
+        #endregion
     }
 }
